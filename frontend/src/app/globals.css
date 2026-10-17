@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #0c0c0e;
+  --muted: #71717a;
+  --accent: #10b981;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.leaflet-container {
+  background: #18181b;
+  border-radius: 0.75rem;
+}
