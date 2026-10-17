@@ -1,0 +1,17 @@
+.env
+*.pyc
+__pycache__/
+.venv/
+backend/.venv/
+node_modules/
+.next/
+frontend/.next/
+*.apk
+.idea/
+*.iml
+local.properties
+android/.gradle/
+android/app/build/
+android/local.properties
+android-sdk/
+pgdata/
