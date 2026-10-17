@@ -101,6 +101,7 @@ class MainActivity : ComponentActivity() {
         store.deviceId = resp.getString("device_id")
         store.deviceToken = resp.getString("device_token")
         store.smsSecret = resp.getString("sms_secret")
+        store.commandVerificationKey = resp.getString("command_verification_key")
         store.adminLabel = store.serverUrl
     }
 

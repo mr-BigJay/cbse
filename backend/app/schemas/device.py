@@ -19,6 +19,7 @@ class DeviceRegisterResponse(BaseModel):
     device_id: str
     device_token: str
     sms_secret: str
+    command_verification_key: str
     status: str
 
 

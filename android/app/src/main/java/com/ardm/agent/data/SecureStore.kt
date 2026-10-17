@@ -29,6 +29,10 @@ class SecureStore(context: Context) {
         get() = prefs.getString("sms_secret", null)
         set(value) = prefs.edit().putString("sms_secret", value).apply()
 
+    var commandVerificationKey: String?
+        get() = prefs.getString("command_verification_key", null)
+        set(value) = prefs.edit().putString("command_verification_key", value).apply()
+
     var adminLabel: String?
         get() = prefs.getString("admin_label", null)
         set(value) = prefs.edit().putString("admin_label", value).apply()
@@ -54,6 +58,7 @@ class SecureStore(context: Context) {
             .remove("device_id")
             .remove("device_token")
             .remove("sms_secret")
+            .remove("command_verification_key")
             .apply()
     }
 }

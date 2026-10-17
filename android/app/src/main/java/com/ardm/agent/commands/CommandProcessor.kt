@@ -9,6 +9,7 @@ import com.ardm.agent.location.LocationHelper
 import com.ardm.agent.network.ApiClient
 import com.ardm.agent.network.CommandEnvelope
 import com.ardm.agent.policy.LockHelper
+import com.ardm.agent.security.CommandVerifier
 import org.json.JSONObject
 
 class CommandProcessor(
@@ -17,7 +18,12 @@ class CommandProcessor(
     private val api: ApiClient,
 ) {
     fun processPending() {
+        val deviceId = store.deviceId ?: return
+        val verifyKey = store.commandVerificationKey ?: return
         for (cmd in api.pendingCommands()) {
+            if (!CommandVerifier.isValid(cmd, deviceId, verifyKey)) {
+                continue
+            }
             api.ack(cmd.commandId)
             execute(cmd)
         }
@@ -79,7 +85,7 @@ class CommandProcessor(
                     )
                 }
                 "ALARM" -> {
-                    context.startForegroundService(Intent(context, FindDeviceService::class.java))
+                    startAlarmService()
                     api.result(cmd.commandId, "completed", JSONObject().put("alarm", true))
                 }
                 "LOCK" -> {
@@ -106,6 +112,15 @@ class CommandProcessor(
             }
         } catch (e: Exception) {
             api.result(cmd.commandId, "failed", JSONObject(), e.message ?: "error")
+        }
+    }
+
+    private fun startAlarmService() {
+        val intent = Intent(context, FindDeviceService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
         }
     }
 

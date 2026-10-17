@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+
+from app.core.config import get_settings
+from app.core.limiter import limiter
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_admin
-from app.core.config import get_settings
 from app.core.security import (
+    derive_device_command_key,
     generate_device_token,
     generate_enrollment_code,
     generate_sms_secret,
@@ -45,6 +48,7 @@ async def create_enrollment_code(
 
 
 @router.post("/register", response_model=DeviceRegisterResponse)
+@limiter.limit("30/minute")
 async def register_device(
     body: DeviceRegisterRequest,
     request: Request,
@@ -96,5 +100,6 @@ async def register_device(
         device_id=str(device.id),
         device_token=device_token,
         sms_secret=sms_secret,
+        command_verification_key=derive_device_command_key(device.id),
         status=device.status.value,
     )

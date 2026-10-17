@@ -17,7 +17,7 @@ class FindDeviceService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val channelId = "ardm_alarm"
-        if (Build.VERSION.SDK_INT >= Build.VERSION.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId, "Find device", NotificationManager.IMPORTANCE_HIGH)
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }

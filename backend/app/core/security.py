@@ -57,14 +57,20 @@ def generate_sms_secret() -> str:
     return secrets.token_urlsafe(24)
 
 
-def sign_command(command_id: UUID, device_id: UUID, cmd_type: str, expires_at: datetime) -> str:
+def derive_device_command_key(device_id: UUID) -> str:
+    """Per-device HMAC key derived at enrollment; provisioned once to the agent."""
     settings = get_settings()
-    canonical = f"{command_id}|{device_id}|{cmd_type}|{expires_at.isoformat()}"
     return hmac.new(
         settings.command_hmac_secret.encode(),
-        canonical.encode(),
+        f"device-cmd:{device_id}".encode(),
         hashlib.sha256,
     ).hexdigest()
+
+
+def sign_command(command_id: UUID, device_id: UUID, cmd_type: str, expires_at: datetime) -> str:
+    canonical = f"{command_id}|{device_id}|{cmd_type}|{expires_at.isoformat()}"
+    key = derive_device_command_key(device_id)
+    return hmac.new(key.encode(), canonical.encode(), hashlib.sha256).hexdigest()
 
 
 def verify_command_signature(

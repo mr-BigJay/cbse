@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_device, require_admin
-from app.core.security import generate_device_token, hash_token
+from app.core.security import derive_device_command_key, generate_device_token, hash_token
 from app.db.session import get_db
 from app.models.device import Device, DeviceLocation, DeviceStatus
 from app.models.user import User
@@ -128,6 +128,7 @@ async def rotate_token(
         device_id=str(device.id),
         device_token=new_token,
         sms_secret="",
+        command_verification_key=derive_device_command_key(device.id),
         status=device.status.value,
     )
 

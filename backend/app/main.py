@@ -1,12 +1,14 @@
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
+
+from app.core.limiter import limiter
 from sqlalchemy import delete, select
 
 from app.api.v1.router import api_router
@@ -16,9 +18,6 @@ from app.db.session import AsyncSessionLocal, engine
 from app.models.device import DeviceLocation
 from app.models.settings import AppSetting
 from app.models.user import User, UserRole
-
-
-limiter = Limiter(key_func=get_remote_address)
 
 
 async def ensure_admin_user() -> None:
@@ -54,9 +53,12 @@ async def purge_old_locations() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await ensure_admin_user()
-    task = asyncio.create_task(purge_old_locations())
+    task = None
+    if os.getenv("TESTING") != "1":
+        task = asyncio.create_task(purge_old_locations())
     yield
-    task.cancel()
+    if task is not None:
+        task.cancel()
 
 
 def create_app() -> FastAPI:

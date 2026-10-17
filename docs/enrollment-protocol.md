@@ -8,7 +8,7 @@
 4. App `POST /api/v1/enrollment/register`:
    - `enrollment_code`, `public_key`, `device_info`, `mode`
 5. Server validates code → creates `device` (`pending_approval`), returns:
-   - `device_id`, `device_token` (long-lived, rotatable), `sms_secret` (shown once for SMS HMAC setup)
+   - `device_id`, `device_token` (long-lived, rotatable), `sms_secret` (shown once for SMS HMAC setup), `command_verification_key` (per-device HMAC key for verifying signed commands)
 6. Administrator approves: `POST /api/v1/devices/{id}/approve`
 7. App polls or receives push; begins heartbeat and command poll.
 
